@@ -1,0 +1,58 @@
+[general]
+# Default cache directory for pre-generated voices
+# Voices will be stored here for reuse
+cache_dir = "path/to/your/cache"
+
+# Number of voices to prefetch
+prefetch_count = 5
+
+# Default log file path (empty means no logging to file)
+# Logs will be written to this file in addition to console output
+log_file = ""
+
+# Port for the TTS server to listen on
+server_port = 5656
+
+# Maximum concurrent TTS requests
+max_concurrent_tts = 10
+
+# Path to the text list file for prefetching
+text_list_path = "path/to/your/text/list.txt"
+
+
+[tts]
+# GPT-SoVITS API endpoint configuration
+base_url = "http://127.0.0.1:9880/tts"
+method = "POST"  # or "GET"
+
+# Required parameters
+text_lang = "ja"
+ref_audio_path = "path/to/your/ref/audio.wav"
+
+# Optional parameters with defaults
+prompt_text = "参考音频的文本内容"
+prompt_lang = "zh"
+top_k = 5
+top_p = 1.0
+temperature = 1.0
+# Text split method options:
+# no_split          - 不切分文本
+# four_sentences    - 每四句切分一次
+# fifty_chars       - 每50字切分一次
+# chinese_period    - 按中文句号切分
+# english_period    - 按英文句号切分
+# all_punctuation   - 按所有标点符号切分
+text_split_method = "fifty_chars"
+batch_size = 1
+batch_threshold = 0.75
+split_bucket = true
+speed_factor = 1.0
+fragment_interval = 0.3
+streaming_mode = false
+seed = -1
+parallel_infer = true
+repetition_penalty = 1.35
+media_type = "wav"
+
+# Optional auxiliary reference audio paths for multi-speaker tone fusion
+aux_ref_audio_paths = [] 

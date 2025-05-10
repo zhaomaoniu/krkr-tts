@@ -1,0 +1,78 @@
+name: Build Release Binaries
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            suffix: ""
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            suffix: ""
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            suffix: ".exe"
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      
+      - name: Build binaries
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+      
+      - name: Prepare artifacts
+        shell: bash
+        run: |
+          ARTIFACTS_DIR=krkr-tts-${{ matrix.target }}
+          mkdir -p $ARTIFACTS_DIR
+          
+          # Copy binaries
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            cp target/${{ matrix.target }}/release/krkr-tts-client.exe $ARTIFACTS_DIR/
+            cp target/${{ matrix.target }}/release/krkr-tts-server.exe $ARTIFACTS_DIR/
+          else
+            cp target/${{ matrix.target }}/release/krkr-tts-client $ARTIFACTS_DIR/
+            cp target/${{ matrix.target }}/release/krkr-tts-server $ARTIFACTS_DIR/
+          fi
+          
+          # Copy config
+          mkdir -p $ARTIFACTS_DIR/config
+          cp -r config/* $ARTIFACTS_DIR/config/
+          
+          # Copy README and LICENSE
+          cp README.md LICENSE $ARTIFACTS_DIR/
+      
+      - name: Create archive
+        shell: bash
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            7z a -tzip krkr-tts-${{ matrix.target }}.zip krkr-tts-${{ matrix.target }}
+          else
+            tar -czvf krkr-tts-${{ matrix.target }}.tar.gz krkr-tts-${{ matrix.target }}
+          fi
+      
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            krkr-tts-${{ matrix.target }}.*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
