@@ -20,10 +20,6 @@ jobs:
             target: x86_64-unknown-linux-gnu
             artifact_name: krkr-tts-linux-amd64
             asset_name: krkr-tts-linux-amd64.tar.gz
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            artifact_name: krkr-tts-linux-arm64
-            asset_name: krkr-tts-linux-arm64.tar.gz
           
           # macOS builds
           - os: macos-latest
@@ -56,12 +52,6 @@ jobs:
       uses: dtolnay/rust-toolchain@stable
       with:
         targets: ${{ matrix.target }}
-
-    - name: Install cross-compilation dependencies (Linux ARM)
-      if: matrix.target == 'aarch64-unknown-linux-gnu'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-aarch64-linux-gnu
 
     - name: Build
       run: cargo build --release --bins --target ${{ matrix.target }}
