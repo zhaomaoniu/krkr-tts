@@ -262,6 +262,7 @@ async fn prefetch_voices(
 
     // Generate the next prefetch_count voices
     let mut count = 0;
+    let mut generated_count = 0;
     let mut current_line = start_position;
     
     while current_line < text_list.len() && count < prefetch_count {
@@ -281,6 +282,7 @@ async fn prefetch_voices(
         if output_path.exists() {
             log_message(&format!("Skipping existing voice for line {}: {}", current_line, text));
             current_line += 1;
+            count += 1;
             continue;
         }
 
@@ -293,6 +295,7 @@ async fn prefetch_voices(
         if is_in_progress {
             log_message(&format!("Skipping in-progress voice for line {}: {}", current_line, text));
             current_line += 1;
+            count += 1;
             continue;
         }
 
@@ -308,6 +311,7 @@ async fn prefetch_voices(
             Ok(_) => {
                 log_message(&format!("Successfully pre-generated voice for line {}: {}", current_line, text));
                 count += 1;
+                generated_count += 1;
             }
             Err(e) => {
                 log_message(&format!("Failed to pre-generate voice for line {}: {}", current_line, e));
@@ -327,7 +331,7 @@ async fn prefetch_voices(
         sleep(Duration::from_millis(200)).await;
     }
 
-    log_message(&format!("Pre-generation completed. Generated {} new voices.", count));
+    log_message(&format!("Pre-generation completed. Generated {} new voices.", generated_count));
     Ok(())
 }
 
