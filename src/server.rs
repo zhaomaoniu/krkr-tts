@@ -565,7 +565,7 @@ async fn try_prefetch_voices(
     // Find the position of the current text in the list
     let mut current_position = text_list.len();
     for (i, text) in text_list.iter().enumerate() {
-        if text.trim() == current_text {
+        if text == current_text {
             current_position = i;
             break;
         }
